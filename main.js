@@ -19,6 +19,13 @@ const illionHundreds = [[""],["centi", "nx"],["ducenti", "n"],["trecenti", "ns"]
 const illionThousands = "milli";
 const illionZero = "nilli";
 
+// regexes to find the illion parts above
+
+const illionOnesRegex = /(un|duo|tre|quattuor|quinqua|se|septe|octo|nove)/giy;
+const illionTensRegex = /(deci|viginti|triginta|quadraginta|quinquaginta|sexaginta|septuaginta|octoginta|nonaginta)/giy;
+const illionHundredsRegex = /(centi|ducenti|trecenti|quadringcenti|quingenti|sescenti|septingenti|octingenti|nongenti)/giy;
+
+
 
 /**
  * Takes in a power of 10 and outputs an array of all the -illions at and below the power of 10.
@@ -35,17 +42,47 @@ function calcNames(maxPower) {
         let lastIllionSize = illionIndexes.length - illionPairs;
         let illionName = "";
         illionIndexes.forEach((digit, index) => {
-            if (index == 0 && digit != 0) {
-                illionName += namesBelowDecillion[digit - 1];
-            } else if (index > illionPairs * 3) {
-                //TODO
-            } else { //TODO: add condition for 'nilli'
-                switch(index % 3) {
-                    case 0:
-                        illionName = illionOnes[digit][0] + "something" + illionName; //TODO: Write the code to determine infixes
-                        break;
+            // calculate which set the digit is in
+            if (index > illionPairs * 3) {
+                // last set
+            } else {
+                // which set is it in
+                let set = Math.floor(index / 3);
+                let dIndex = index % 3;
+                // check if all the digits in the set are 0:
+                if (illionIndexes.slice(set * 3, set * 3 + 3).every(digit => digit === 0)) {
+                    // check if it's the first in the set
+                    if (dIndex === 0) {
+                        // check it isn't the first or last set
+                        if (!(set === 0 || set === illionPairs)) {
+                            // if it gets here, it's the first in the set, and not the first or last set, therefore print 'nilli'
+                            illionName = illionZero + illionName;
+                        }
+                    }
+                } else if (digit === 0) { // check if it's zero
+                    break; // if it's zero, don't print anything
+                } else if (set === 0 && dIndex === 0 && illionIndexes.slice(set * 3, set * 3 + 3).filter(digit => digit !== 0).length === 1) {  // check if it's the first set and it's the first digit in the set and it's the only non-zero in the set
+                    // if it gets here print the corrosponding illion in namesBelowDecillion:
+                    illionName = namesBelowDecillion[digit - 1] + illionName;
+
+                } else {
+                    // if it gets here, print the name of the digit depending on the position in the set. We will deal with the infixes later using regex magic.
+                    switch(dIndex) {
+                        case 0: // ones
+                            illionName = illionOnes[digit][0] + illionName;
+                            break;
+                        case 1: // tens
+                            illionName = illionTens[digit][0] + illionName;
+                            break;
+                        case 2: // hundreds
+                            illionName = illionHundreds[digit][0] + illionName;
+                            break;
                 }
             }
+        });
+        // add the infixes by finding the ones and testing if they are adjacent to tens/hundreds and that the prefix requirements are met.
+        illionName.exec(illionOnesRegex).forEach((match, index, matches) => {
+            //TODO: finish this shit later you lazy fuck
         });
     }
 }
