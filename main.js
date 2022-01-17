@@ -21,9 +21,9 @@ const illionZero = "nilli";
 
 // regexes to find the illion parts above
 
-const illionOnesRegex = /(un|duo|tre|quattuor|quinqua|se|septe|octo|nove)/giy;
-const illionTensRegex = /(deci|viginti|triginta|quadraginta|quinquaginta|sexaginta|septuaginta|octoginta|nonaginta)/giy;
-const illionHundredsRegex = /(centi|ducenti|trecenti|quadringcenti|quingenti|sescenti|septingenti|octingenti|nongenti)/giy;
+const illionOnesRegex = /(un|duo|tre|quattuor|quinqua|se|septe|octo|nove)/gid;
+const illionTensRegex = /(deci|viginti|triginta|quadraginta|quinquaginta|sexaginta|septuaginta|octoginta|nonaginta)/gid;
+const illionHundredsRegex = /(centi|ducenti|trecenti|quadringcenti|quingenti|sescenti|septingenti|octingenti|nongenti)/gid;
 
 
 
@@ -60,7 +60,7 @@ function calcNames(maxPower) {
                         }
                     }
                 } else if (digit === 0) { // check if it's zero
-                    break; // if it's zero, don't print anything
+                    continue; // if it's zero, don't print anything
                 } else if (set === 0 && dIndex === 0 && illionIndexes.slice(set * 3, set * 3 + 3).filter(digit => digit !== 0).length === 1) {  // check if it's the first set and it's the first digit in the set and it's the only non-zero in the set
                     // if it gets here print the corrosponding illion in namesBelowDecillion:
                     illionName = namesBelowDecillion[digit - 1] + illionName;
@@ -77,13 +77,23 @@ function calcNames(maxPower) {
                         case 2: // hundreds
                             illionName = illionHundreds[digit][0] + illionName;
                             break;
+                    }
                 }
             }
         });
         // add the infixes by finding the ones and testing if they are adjacent to tens/hundreds and that the prefix requirements are met.
-        illionName.exec(illionOnesRegex).forEach((match, index, matches) => {
-            //TODO: finish this shit later you lazy fuck
-        });
+        let regexResultOnes = illionOnesRegex.exec(illionName);
+        let regexResultTens = illionTensRegex.exec(illionName);
+        let regexResultHundreds = illionHundredsRegex.exec(illionName);
+        for (var i=1; i < (regexResultOnes.length-1); i++) {
+            // look for the next Illion
+            let nextIllionTens = regexResultTens.indices.find(index => index[0] === regexResultOnes.indices[i][1] + 1) 
+            let nextIllionHundreds = regexResultHundreds.indices.find(index => index[0] === regexResultOnes.indices[i][1] + 1)
+            // if the next illion is a ones type OR there is no next illion move on
+            let indexOfNextIllion = (nextIllionTens ?? 0) + (nextIllionHundreds ?? 0)
+            if (!indexOfNextIllion) continue;
+
+        }
     }
 }
 
