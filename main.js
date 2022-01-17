@@ -62,9 +62,7 @@ function illionPairing(indexes) {
     let illionIndexes = indexes;
     let illionPairs = 0;
     while (illionIndexes.length > 4) {
-        illionIndexes.pop();
-        illionIndexes.pop();
-        illionIndexes.pop();
+        illionIndexes.splice(-3,3);
         illionPairs++;
     }
     return illionPairs;
