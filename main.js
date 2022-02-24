@@ -39,7 +39,6 @@ function calcNames(maxPower) {
     for (i = illionIndex; i > 0; i--) {
         let illionIndexes = i.toString().split("").map(Number).reverse();
         let illionPairs = illionPairing(illionIndexes);
-        let lastIllionSize = illionIndexes.length - illionPairs;
         let illionName = "";
         illionIndexes.forEach((digit, index) => {
             // calculate which set the digit is in
@@ -60,7 +59,7 @@ function calcNames(maxPower) {
                         }
                     }
                 } else if (digit === 0) { // check if it's zero
-                    continue; // if it's zero, don't print anything
+                    // if it's zero, don't print anything
                 } else if (set === 0 && dIndex === 0 && illionIndexes.slice(set * 3, set * 3 + 3).filter(digit => digit !== 0).length === 1) {  // check if it's the first set and it's the first digit in the set and it's the only non-zero in the set
                     // if it gets here print the corrosponding illion in namesBelowDecillion:
                     illionName = namesBelowDecillion[digit - 1] + illionName;
@@ -85,16 +84,47 @@ function calcNames(maxPower) {
         let regexResultOnes = illionOnesRegex.exec(illionName);
         let regexResultTens = illionTensRegex.exec(illionName);
         let regexResultHundreds = illionHundredsRegex.exec(illionName);
-        for (var i=1; i < (regexResultOnes.length-1); i++) {
-            // look for the next Illion
-            let nextIllionTens = regexResultTens.indices.find(index => index[0] === regexResultOnes.indices[i][1] + 1) 
-            let nextIllionHundreds = regexResultHundreds.indices.find(index => index[0] === regexResultOnes.indices[i][1] + 1)
-            // if the next illion is a ones type OR there is no next illion move on
-            let indexOfNextIllion = (nextIllionTens ?? 0) + (nextIllionHundreds ?? 0)
-            if (!indexOfNextIllion) continue;
-
+        // for each ones digit...
+        if (regexResultOnes !== null) {
+            for (var i=1; i <= (regexResultOnes.length); i++) {
+                let onesIndex = illionOnes.findIndex((value, index) => illionOnes[index][0] === regexResultOnes[i]); // iterate through illionOnes, check that the illionOnes = regexResultOnes
+                let tensIndex, hundredsIndex;
+                if (regexResultTens !== null) {
+                    tensIndex = illionTens.findIndex((value, index) => { // look for an illionTens in regexResultTens with a index after the ones.
+                        for (var j=0; j < (regexResultTens.length); j++) { // for each of the tens results...
+                            if (regexResultOnes.indices[i-1][1] + 1 === regexResultTens.indices[j][0]) { // check if it's index is one above the ones index
+                                return illionTens[index][0] === regexResultTens[j + 1]; // check if it's even the index we want
+                            }
+                        }
+                        return false;
+                    });
+                }
+                if (regexResultHundreds !== null) {
+                    hundredsIndex = illionHundreds.findIndex((value, index) => {
+                        for (var j=0; j < (regexResultTens.length); j++) {
+                            if (regexResultOnes.indices[i-1][1] + 1 === regexResultHundreds.indices[j][0]) {
+                                return illionHundreds[index][0] === regexResultHundreds[j + 1];
+                            }
+                        }
+                        return false;
+                    }); 
+                }   
+                if (regexResultTens.indices.find((value, index, indices) => indices[index][0] === regexResultOnes.indices[i-1][1] + 1) !== -1) { // check if the start index of the tens digit is directly after the ones digit
+                    let infixLetter = checkForCommonLetters(illionOnes[onesIndex][1], illionTens[tensIndex][1]) // check for infix letters
+                    if (infixLetter != "") { // if there isn't an infix letter, do nothing
+                        illionName = insertString(illionName, infixLetter, regexResultOnes.indices[i-1][1] + 1); // insert the infix letter
+                    }
+                } else if (regexResultHundreds.indices.find((value, index, indices) => indices[index][0] === regexResultOnes.indices[i-1][1] + 1) !== -1) { // same but hundreds
+                    let infixLetter = checkForCommonLetters(illionOnes[onesIndex][1], illionHundreds[hundredsIndex][1]) // check for infix letters
+                    if (infixLetter != "") { // if there isn't an infix letter, do nothing
+                        illionName = insertString(illionName, infixLetter, regexResultOnes.indices[i-1][1] + 1); // insert the infix letter
+                    } else continue; // else, do nothing
+                }
+            }
         }
+        illionList.push(illionName);
     }
+    return illionList;
 }
 
 // Subfunctions
@@ -114,3 +144,30 @@ function illionPairing(indexes) {
     }
     return illionPairs;
 }
+/**
+ * Takes in 2 strings and finds all common letters between them. Any letters that are in both strings multiple times are counted as multiple.
+ * @param {String} str1 First String 
+ * @param {String} str2 Second String
+ * @returns {String} All common letters between the two strings
+ */
+function checkForCommonLetters(str1, str2) {
+    let commonLetters = "";
+    for (let i = 0; i < str1.length; i++) {
+        if (str2.includes(str1[i])) {
+            commonLetters += str1[i];
+        }
+    }
+    return commonLetters;    
+}
+/**
+ * Takes in 2 strings and places str2 into str1 at the index of the specified index.
+ * @param {String} str1 First String
+ * @param {String} str2 Second String
+ * @param {Number} index Index to place str2 into str1
+ * @returns {String} str1 with str2 placed in it 
+ */
+function insertString(str1, str2, index) {
+    return str1.slice(0, index) + str2 + str1.slice(index);
+}
+
+console.log(calcNames(120));
