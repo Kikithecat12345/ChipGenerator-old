@@ -57,8 +57,6 @@ var smallPrefixes = [
 ]
 
 function generateIllionPrefix(prefixNum) {
-    // reverse prefixNum
-    var prefixNum = prefixNum.toString().split("").reverse().join("");
     // split prefixNum into sections of 3 digits right to left
     // ex. 3 -> [3], 12 -> [12], 123 -> [123], 1234 -> [1,234], 12345 -> [12,345], 123456 -> [123,456]
     let prefixNumSections = [];
@@ -66,6 +64,15 @@ function generateIllionPrefix(prefixNum) {
         prefixNumSections.push(prefixNum % 1000);
         prefixNum = Math.floor(prefixNum / 1000);
     }
+    // reverse the array so we can read it left to right
+    prefixNumSections.reverse();
+
+    // is it less than 10?
+    if (prefixNumSections.length == 1 && prefixNumSections[0] < 10) {
+        // use the small prefixes
+        return smallPrefixes[prefixNumSections[0] - 1] + "on";
+    }
+
     // for each number in prefixNumSections in reverse order, generate the prefix for that section
     let prefix = "";
     for (let i = prefixNumSections.length - 1; i >= 0; i--) {
@@ -190,11 +197,11 @@ function generateIllionPrefix(prefixNum) {
         }
     }
 
-    // add "llion" to the end
-    prefix += "llion";
+    // add "llion" to the end UNLESS ends in -illi, then add the "on" to the end of that
+    if (prefix.endsWith("illi")) {
+        prefix = prefix.slice(0, -4) + "illion";
+    } else prefix += "llion";
     return prefix;
 };  
 
-console.log("test 1: " + generateIllionPrefix(999));
-
-console.log("test 2: " + generateIllionPrefix(123456789)); // 123,456,789 is unvigintitrecentiquattorquinquagintasescentiseptemoctogintanongentillion
+console.log("test 1: " + generateIllionPrefix(10));
