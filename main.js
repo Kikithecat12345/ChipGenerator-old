@@ -3,171 +3,198 @@
  * Instructions, credits and other stuff is in the Readme.
  */
 
-
-
-// Below this you shouldn't need to touch unless you are doing silly stuff
-const namesBelowTen = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
-const namesBelowTwenty = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"]
-const namesBelowHundred = ["twenty", "thirty", "fourty", "fifty", "sixty", "seventy", "eighty", "ninety"]
-const theRest = ["hundred", "thousand"]
-
-const namesBelowDecillion = ["million", "billion", "trillion", "quadrillion", "quintillion", "sextillion", "septillion", "octillion", "nonillion", "decillion"];
-// each inner array is main part, then prefix/suffix bits.
-const illionOnes = [[""],["un"],["duo"],["tre", "s"],["quattuor"],["quinqua"],["se", "sx"],["septe", "mn"],["octo"],["nove", "mn"]]; 
-const illionTens = [[""],["deci", "n"],["viginti", "ms"],["triginta", "ns"],["quadraginta", "ns"],["quinquaginta", "ns"],["sexaginta", "n"],["septuaginta", "n"],["octoginta", "mx"],["nonaginta"]];
-const illionHundreds = [[""],["centi", "nx"],["ducenti", "n"],["trecenti", "ns"],["quadringcenti", "ns"],["quingenti", "ns"],["sescenti", "n"],["septingenti", "n"],["octingenti","mx"],["nongenti"]];
-const illionThousands = "milli";
-const illionZero = "nilli";
-
-// regexes to find the illion parts above
-
-const illionOnesRegex = /(un|duo|tre|quattuor|quinqua|se|septe|octo|nove)/gid;
-const illionTensRegex = /(deci|viginti|triginta|quadraginta|quinquaginta|sexaginta|septuaginta|octoginta|nonaginta)/gid;
-const illionHundredsRegex = /(centi|ducenti|trecenti|quadringcenti|quingenti|sescenti|septingenti|octingenti|nongenti)/gid;
-
-
-
 /**
- * Takes in a power of 10 and outputs an array of all the -illions at and below the power of 10.
- * @param {Number} maxPower Largest power of 10
- * @returns {String[]} List of -illions
+ * Generates a prefix for a specified -illion. 
+ * Ex. prefixNum = 3 returns "Trillion" and PrefixNum = 3 returns "Trigintillion"
+ * @param {Number} prefixNum The number of the illion to generate a prefix for.
+ * @returns {String} The prefix for the illion. The number of the illion is 10^(3*prefixNum+3).
  */
-function calcNames(maxPower) {
-    // subtract the power by 3 then divide by 3 to get the illion index.
-    let illionIndex = Math.floor((maxPower - 3) / 3);
-    let illionList = [];
-    for (i = illionIndex; i > 0; i--) {
-        let illionIndexes = i.toString().split("").map(Number).reverse();
-        let illionPairs = illionPairing(illionIndexes);
-        let illionName = "";
-        illionIndexes.forEach((digit, index) => {
-            // calculate which set the digit is in
-            if (index > illionPairs * 3) {
-                // last set
-            } else {
-                // which set is it in
-                let set = Math.floor(index / 3);
-                let dIndex = index % 3;
-                // check if all the digits in the set are 0:
-                if (illionIndexes.slice(set * 3, set * 3 + 3).every(digit => digit === 0)) {
-                    // check if it's the first in the set
-                    if (dIndex === 0) {
-                        // check it isn't the first or last set
-                        if (!(set === 0 || set === illionPairs)) {
-                            // if it gets here, it's the first in the set, and not the first or last set, therefore print 'nilli'
-                            illionName = illionZero + illionName;
-                        }
-                    }
-                } else if (digit === 0) { // check if it's zero
-                    // if it's zero, don't print anything
-                } else if (set === 0 && dIndex === 0 && illionIndexes.slice(set * 3, set * 3 + 3).filter(digit => digit !== 0).length === 1) {  // check if it's the first set and it's the first digit in the set and it's the only non-zero in the set
-                    // if it gets here print the corrosponding illion in namesBelowDecillion:
-                    illionName = namesBelowDecillion[digit - 1] + illionName;
 
-                } else {
-                    // if it gets here, print the name of the digit depending on the position in the set. We will deal with the infixes later using regex magic.
-                    switch(dIndex) {
-                        case 0: // ones
-                            illionName = illionOnes[digit][0] + illionName;
-                            break;
-                        case 1: // tens
-                            illionName = illionTens[digit][0] + illionName;
-                            break;
-                        case 2: // hundreds
-                            illionName = illionHundreds[digit][0] + illionName;
-                            break;
-                    }
-                }
+var hundredsPrefixes = [
+"centi", // 1
+"ducenti",
+"trecenti",
+"quadragcenti",
+"quingenti",
+"sescenti",
+"septingenti",
+"octingenti",
+"nongenti" // 9
+];
+var tensPrefixes = [
+"deci", // 1
+"viginti",
+"triginta",
+"quadraginta",
+"quinquaginta",
+"sexaginta",
+"septuaginta",
+"octoginta",
+"nonaginta" // 9
+];
+var onesPrefixes = [
+"un", // 1
+"duo",
+"tre",
+"quattuor",
+"quinqua",
+"se",
+"septe",
+"octo",
+"nove" // 9
+];
+
+var smallPrefixes = [
+"milli", // 1
+"billi",
+"trilli",
+"quadrilli",
+"quintilli",
+"sextilli",
+"septilli",
+"octilli",
+"nonilli" // 9
+]
+
+function generateIllionPrefix(prefixNum) {
+    // reverse prefixNum
+    var prefixNum = prefixNum.toString().split("").reverse().join("");
+    // split prefixNum into sections of 3 digits right to left
+    // ex. 3 -> [3], 12 -> [12], 123 -> [123], 1234 -> [1,234], 12345 -> [12,345], 123456 -> [123,456]
+    let prefixNumSections = [];
+    while (prefixNum > 0) {
+        prefixNumSections.push(prefixNum % 1000);
+        prefixNum = Math.floor(prefixNum / 1000);
+    }
+    // for each number in prefixNumSections in reverse order, generate the prefix for that section
+    let prefix = "";
+    for (let i = prefixNumSections.length - 1; i >= 0; i--) {
+        // is it 0?
+        if (prefixNumSections[i] == 0) {
+            // add "nilli" to the prefix
+            prefix = "nilli" + prefix;
+        } else if (prefixNumSections[i] < 10) { // is it 00X?
+            // use the small prefixes
+            prefix = smallPrefixes[prefixNumSections[i] - 1] + prefix;
+        } else {
+            // We need to treat the hundreds, tens, and ones separately cause they have seperate prefixes.
+            // Also, they are reversed. you write 123-illion as Un-Viginti-Trecenti-llion.
+            // One last thing to look out for is the fact that certain ones prefixes need to be spelled differently depending on what is infront of it. English sucks.
+            // https://en.wikipedia.org/wiki/Names_of_large_numbers#Extensions_of_the_standard_dictionary_numbers
+
+            let lastPrefixAdded = "";
+
+            // is there a hundreds digit?
+            if (prefixNumSections[i] >= 100) {
+                // add the hundreds prefix
+                lastPrefixAdded = hundredsPrefixes[Math.floor(prefixNumSections[i] / 100) - 1]; // minus one cause index 0 is 1
+                prefix = lastPrefixAdded + prefix;
             }
-        });
-        // add the infixes by finding the ones and testing if they are adjacent to tens/hundreds and that the prefix requirements are met.
-        let regexResultOnes = illionOnesRegex.exec(illionName);
-        let regexResultTens = illionTensRegex.exec(illionName);
-        let regexResultHundreds = illionHundredsRegex.exec(illionName);
-        // for each ones digit...
-        if (regexResultOnes !== null) {
-            for (var i=1; i <= (regexResultOnes.length); i++) {
-                let onesIndex = illionOnes.findIndex((value, index) => illionOnes[index][0] === regexResultOnes[i]); // iterate through illionOnes, check that the illionOnes = regexResultOnes
-                let tensIndex, hundredsIndex;
-                if (regexResultTens !== null) {
-                    tensIndex = illionTens.findIndex((value, index) => { // look for an illionTens in regexResultTens with a index after the ones.
-                        for (var j=0; j < (regexResultTens.length); j++) { // for each of the tens results...
-                            if (regexResultOnes.indices[i-1][1] + 1 === regexResultTens.indices[j][0]) { // check if it's index is one above the ones index
-                                return illionTens[index][0] === regexResultTens[j + 1]; // check if it's even the index we want
-                            }
-                        }
-                        return false;
-                    });
-                }
-                if (regexResultHundreds !== null) {
-                    hundredsIndex = illionHundreds.findIndex((value, index) => {
-                        for (var j=0; j < (regexResultTens.length); j++) {
-                            if (regexResultOnes.indices[i-1][1] + 1 === regexResultHundreds.indices[j][0]) {
-                                return illionHundreds[index][0] === regexResultHundreds[j + 1];
-                            }
-                        }
-                        return false;
-                    }); 
-                }   
-                if (regexResultTens.indices.find((value, index, indices) => indices[index][0] === regexResultOnes.indices[i-1][1] + 1) !== -1) { // check if the start index of the tens digit is directly after the ones digit
-                    let infixLetter = checkForCommonLetters(illionOnes[onesIndex][1], illionTens[tensIndex][1]) // check for infix letters
-                    if (infixLetter != "") { // if there isn't an infix letter, do nothing
-                        illionName = insertString(illionName, infixLetter, regexResultOnes.indices[i-1][1] + 1); // insert the infix letter
-                    }
-                } else if (regexResultHundreds.indices.find((value, index, indices) => indices[index][0] === regexResultOnes.indices[i-1][1] + 1) !== -1) { // same but hundreds
-                    let infixLetter = checkForCommonLetters(illionOnes[onesIndex][1], illionHundreds[hundredsIndex][1]) // check for infix letters
-                    if (infixLetter != "") { // if there isn't an infix letter, do nothing
-                        illionName = insertString(illionName, infixLetter, regexResultOnes.indices[i-1][1] + 1); // insert the infix letter
-                    } else continue; // else, do nothing
-                }
+            // is there a tens digit?
+            if (prefixNumSections[i] % 100 >= 10) {
+                // add the tens prefix
+                lastPrefixAdded = tensPrefixes[Math.floor(prefixNumSections[i] % 100 / 10) - 1];
+                prefix = lastPrefixAdded + prefix; 
+            }
+            // is there a ones digit?
+            if (prefixNumSections[i] % 10 >= 1) {
+                // we need to treat this one special depending on the prefix last added. 
+                let onesDigit = prefixNumSections[i] % 10;
+                switch (onesDigit) { // depending on the ones digit, we need to check grammar
+                    case 3:
+                        // if the last prefix added was Viginti, Triginta, Quadraginta, Quinquaginta, Centi, Trecenti, Quadragcenti, or Quingenti, we need to add "tres" instead of "tre"
+                        if (lastPrefixAdded == "viginti" || 
+                            lastPrefixAdded == "triginta" || 
+                            lastPrefixAdded == "quadraginta" || 
+                            lastPrefixAdded == "quinquaginta" || 
+                            lastPrefixAdded == "centi" || 
+                            lastPrefixAdded == "trecenti" || 
+                            lastPrefixAdded == "quadragcenti" || 
+                            lastPrefixAdded == "quingenti") 
+                        {
+                            prefix = "tres" + prefix;
+                        } else prefix = onesPrefixes[onesDigit - 1] + prefix;
+                        break;
+                    case 6:
+                        // same as above, but there's 2 cases, changing to "ses" or "sex" instead of "se"
+                        if (lastPrefixAdded == "viginti" || 
+                            lastPrefixAdded == "triginta" || 
+                            lastPrefixAdded == "quadraginta" || 
+                            lastPrefixAdded == "quinquaginta" || 
+                            lastPrefixAdded == "centi" || 
+                            lastPrefixAdded == "trecenti" || 
+                            lastPrefixAdded == "quadragcenti" || 
+                            lastPrefixAdded == "quingenti") {
+                            prefix = "ses" + prefix;
+                        } else if (lastPrefixAdded == "octoginta" ||
+                                   lastPrefixAdded == "centi" ||
+                                   lastPrefixAdded == "octingenti") 
+                        {
+                            prefix = "sex" + prefix;
+                        } else prefix = onesPrefixes[onesDigit - 1] + prefix;
+                        break;
+                        // septe and nove are like above, but change to "septem" and "novem" or "septen" and "noven" instead of "septe" and "nove"
+                    case 7:
+                        if (lastPrefixAdded == "viginti" ||
+                            lastPrefixAdded == "octoginta" ||
+                            lastPrefixAdded == "octingenti")
+                        {
+                            prefix = "septem" + prefix;
+                        } else if (lastPrefixAdded == "deci" ||
+                                   lastPrefixAdded == "triginta" ||
+                                   lastPrefixAdded == "quadraginta" ||
+                                   lastPrefixAdded == "quinquaginta" ||
+                                   lastPrefixAdded == "sexaginta" ||
+                                   lastPrefixAdded == "septuaginta" ||
+                                   
+                                   lastPrefixAdded == "centi" ||
+                                   lastPrefixAdded == "ducenti" ||
+                                   lastPrefixAdded == "trecenti" ||
+                                   lastPrefixAdded == "quadragcenti" ||
+                                   lastPrefixAdded == "quingenti" ||
+                                   lastPrefixAdded == "secenti" ||
+                                   lastPrefixAdded == "septingenti")
+                        {
+                            prefix = "septen" + prefix;
+                        } else prefix = onesPrefixes[onesDigit - 1] + prefix;
+                        break;
+                    case 9:
+                        if (lastPrefixAdded == "viginti" ||
+                            lastPrefixAdded == "octoginta" ||
+                            lastPrefixAdded == "octingenti")
+                        {
+                            prefix = "novem" + prefix;
+                        } else if (lastPrefixAdded == "deci" ||
+                                   lastPrefixAdded == "triginta" ||
+                                   lastPrefixAdded == "quadraginta" ||
+                                   lastPrefixAdded == "quinquaginta" ||
+                                   lastPrefixAdded == "sexaginta" ||
+                                   lastPrefixAdded == "septuaginta" ||
+                                   
+                                   lastPrefixAdded == "centi" ||
+                                   lastPrefixAdded == "ducenti" ||
+                                   lastPrefixAdded == "trecenti" ||
+                                   lastPrefixAdded == "quadragcenti" ||
+                                   lastPrefixAdded == "quingenti" ||
+                                   lastPrefixAdded == "secenti" ||
+                                   lastPrefixAdded == "septingenti")
+                        {
+                            prefix = "noven" + prefix;
+                        } else prefix = onesPrefixes[onesDigit - 1] + prefix;
+                        break;
+                    default:
+                        prefix = onesPrefixes[onesDigit - 1] + prefix;
+                        break;
+                }; 
             }
         }
-        illionList.push(illionName);
     }
-    return illionList;
-}
 
-// Subfunctions
+    // add "llion" to the end
+    prefix += "llion";
+    return prefix;
+};  
 
-/**
- * Takes in an array of digits and calculates the # of sets of 3 possible, while leaving up to 4 at the end.
- * @param {Number[]} indexes Array of digits
- * @returns {Number} # of sets
- */
-function illionPairing(indexes) {
-    if (indexes.length <= 4) return 1;
-    let illionIndexes = indexes;
-    let illionPairs = 0;
-    while (illionIndexes.length > 4) {
-        illionIndexes.splice(-3,3);
-        illionPairs++;
-    }
-    return illionPairs;
-}
-/**
- * Takes in 2 strings and finds all common letters between them. Any letters that are in both strings multiple times are counted as multiple.
- * @param {String} str1 First String 
- * @param {String} str2 Second String
- * @returns {String} All common letters between the two strings
- */
-function checkForCommonLetters(str1, str2) {
-    let commonLetters = "";
-    for (let i = 0; i < str1.length; i++) {
-        if (str2.includes(str1[i])) {
-            commonLetters += str1[i];
-        }
-    }
-    return commonLetters;    
-}
-/**
- * Takes in 2 strings and places str2 into str1 at the index of the specified index.
- * @param {String} str1 First String
- * @param {String} str2 Second String
- * @param {Number} index Index to place str2 into str1
- * @returns {String} str1 with str2 placed in it 
- */
-function insertString(str1, str2, index) {
-    return str1.slice(0, index) + str2 + str1.slice(index);
-}
+console.log("test 1: " + generateIllionPrefix(999));
 
-console.log(calcNames(120));
+console.log("test 2: " + generateIllionPrefix(123456789)); // 123,456,789 is unvigintitrecentiquattorquinquagintasescentiseptemoctogintanongentillion
