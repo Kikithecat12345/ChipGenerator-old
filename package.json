@@ -1,0 +1,31 @@
+{
+    "name": "chipgenerator",
+    "description": "Makes a set of chip textures based on a template and import into Tabletop Simulator.",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "main.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Kikithecat12345/ChipGenerator.git"
+    },
+    "author": "Kikicat123",
+    "contributors": [
+        {
+            "name": "MrMelon54",
+            "email": "github@mrmelon54.com",
+            "url": "https://mrmelon54.com"
+        },
+        "Index"
+    ],
+    "license": "GPL-3.0-or-later",
+    "bugs": {
+        "url": "https://github.com/Kikithecat12345/ChipGenerator/issues"
+    },
+    "homepage": "https://github.com/Kikithecat12345/ChipGenerator#readme",
+    "dependencies": {
+        "jimp": "^0.17.10"
+    }
+}
