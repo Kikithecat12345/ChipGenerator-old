@@ -26,6 +26,7 @@
     },
     "homepage": "https://github.com/Kikithecat12345/ChipGenerator#readme",
     "dependencies": {
-        "jimp": "^0.17.10"
+        "jimp": "^0.17.10",
+        "read-ini-file": "^4.0.0"
     }
 }
