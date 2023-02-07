@@ -5,9 +5,7 @@
 
 // User-editable variables
 
-
-
-// These variables you probably don't want to change, unless you are translating the code to another language. 
+// These variables you probably don't want to change, unless you are translating the code to another language.
 // If you are, godspeed. you probably have to rewrite the entire file.
 var hundredsPrefixes = [
     "centi", // 1
@@ -18,9 +16,9 @@ var hundredsPrefixes = [
     "sescenti",
     "septingenti",
     "octingenti",
-    "nongenti" // 9
-    ];
-    var tensPrefixes = [
+    "nongenti", // 9
+];
+var tensPrefixes = [
     "deci", // 1
     "viginti",
     "triginta",
@@ -29,9 +27,9 @@ var hundredsPrefixes = [
     "sexaginta",
     "septuaginta",
     "octoginta",
-    "nonaginta" // 9
-    ];
-    var onesPrefixes = [
+    "nonaginta", // 9
+];
+var onesPrefixes = [
     "un", // 1
     "duo",
     "tre",
@@ -40,10 +38,10 @@ var hundredsPrefixes = [
     "se",
     "septe",
     "octo",
-    "nove" // 9
-    ];
-    
-    var smallPrefixes = [
+    "nove", // 9
+];
+
+var smallPrefixes = [
     "milli", // 1
     "billi",
     "trilli",
@@ -52,16 +50,16 @@ var hundredsPrefixes = [
     "sextilli",
     "septilli",
     "octilli",
-    "nonilli" // 9
-    ]
+    "nonilli", // 9
+];
 
 /**
- * Generates a prefix for a specified -illion. 
+ * Generates a prefix for a specified -illion.
  * Ex. prefixNum = 3 returns "Trillion" and PrefixNum = 3 returns "Trigintillion"
  * @param {Number} prefixNum The number of the illion to generate a prefix for.
  * @returns {String} The prefix for the illion. The number of the illion is 10^(3*prefixNum+3).
- */    
-function generateIllionPrefix(prefixNum) {
+ */
+export function generateIllionPrefix(prefixNum) {
     // split prefixNum into sections of 3 digits right to left
     // ex. 3 -> [3], 12 -> [12], 123 -> [123], 1234 -> [1,234], 12345 -> [12,345], 123456 -> [123,456]
     let prefixNumSections = [];
@@ -85,7 +83,8 @@ function generateIllionPrefix(prefixNum) {
         if (prefixNumSections[i] == 0) {
             // add "nilli" to the prefix
             prefix = "nilli" + prefix;
-        } else if (prefixNumSections[i] < 10) { // is it 00X?
+        } else if (prefixNumSections[i] < 10) {
+            // is it 00X?
             // use the small prefixes
             prefix = smallPrefixes[prefixNumSections[i] - 1] + prefix;
         } else {
@@ -99,105 +98,119 @@ function generateIllionPrefix(prefixNum) {
             // is there a hundreds digit?
             if (prefixNumSections[i] >= 100) {
                 // add the hundreds prefix
-                lastPrefixAdded = hundredsPrefixes[Math.floor(prefixNumSections[i] / 100) - 1]; // minus one cause index 0 is 1
+                lastPrefixAdded =
+                    hundredsPrefixes[
+                        Math.floor(prefixNumSections[i] / 100) - 1
+                    ]; // minus one cause index 0 is 1
                 prefix = lastPrefixAdded + prefix;
             }
             // is there a tens digit?
             if (prefixNumSections[i] % 100 >= 10) {
                 // add the tens prefix
-                lastPrefixAdded = tensPrefixes[Math.floor(prefixNumSections[i] % 100 / 10) - 1];
-                prefix = lastPrefixAdded + prefix; 
+                lastPrefixAdded =
+                    tensPrefixes[
+                        Math.floor((prefixNumSections[i] % 100) / 10) - 1
+                    ];
+                prefix = lastPrefixAdded + prefix;
             }
             // is there a ones digit?
             if (prefixNumSections[i] % 10 >= 1) {
-                // we need to treat this one special depending on the prefix last added. 
+                // we need to treat this one special depending on the prefix last added.
                 let onesDigit = prefixNumSections[i] % 10;
-                switch (onesDigit) { // depending on the ones digit, we need to check grammar
+                switch (
+                    onesDigit // depending on the ones digit, we need to check grammar
+                ) {
                     case 3:
                         // if the last prefix added was Viginti, Triginta, Quadraginta, Quinquaginta, Centi, Trecenti, Quadragcenti, or Quingenti, we need to add "tres" instead of "tre"
-                        if (lastPrefixAdded == "viginti" || 
-                            lastPrefixAdded == "triginta" || 
-                            lastPrefixAdded == "quadraginta" || 
-                            lastPrefixAdded == "quinquaginta" || 
-                            lastPrefixAdded == "centi" || 
-                            lastPrefixAdded == "trecenti" || 
-                            lastPrefixAdded == "quadragcenti" || 
-                            lastPrefixAdded == "quingenti") 
-                        {
+                        if (
+                            lastPrefixAdded == "viginti" ||
+                            lastPrefixAdded == "triginta" ||
+                            lastPrefixAdded == "quadraginta" ||
+                            lastPrefixAdded == "quinquaginta" ||
+                            lastPrefixAdded == "centi" ||
+                            lastPrefixAdded == "trecenti" ||
+                            lastPrefixAdded == "quadragcenti" ||
+                            lastPrefixAdded == "quingenti"
+                        ) {
                             prefix = "tres" + prefix;
                         } else prefix = onesPrefixes[onesDigit - 1] + prefix;
                         break;
                     case 6:
                         // same as above, but there's 2 cases, changing to "ses" or "sex" instead of "se"
-                        if (lastPrefixAdded == "viginti" || 
-                            lastPrefixAdded == "triginta" || 
-                            lastPrefixAdded == "quadraginta" || 
-                            lastPrefixAdded == "quinquaginta" || 
-                            lastPrefixAdded == "centi" || 
-                            lastPrefixAdded == "trecenti" || 
-                            lastPrefixAdded == "quadragcenti" || 
-                            lastPrefixAdded == "quingenti") {
+                        if (
+                            lastPrefixAdded == "viginti" ||
+                            lastPrefixAdded == "triginta" ||
+                            lastPrefixAdded == "quadraginta" ||
+                            lastPrefixAdded == "quinquaginta" ||
+                            lastPrefixAdded == "centi" ||
+                            lastPrefixAdded == "trecenti" ||
+                            lastPrefixAdded == "quadragcenti" ||
+                            lastPrefixAdded == "quingenti"
+                        ) {
                             prefix = "ses" + prefix;
-                        } else if (lastPrefixAdded == "octoginta" ||
-                                   lastPrefixAdded == "centi" ||
-                                   lastPrefixAdded == "octingenti") 
-                        {
+                        } else if (
+                            lastPrefixAdded == "octoginta" ||
+                            lastPrefixAdded == "centi" ||
+                            lastPrefixAdded == "octingenti"
+                        ) {
                             prefix = "sex" + prefix;
                         } else prefix = onesPrefixes[onesDigit - 1] + prefix;
                         break;
-                        // septe and nove are like above, but change to "septem" and "novem" or "septen" and "noven" instead of "septe" and "nove"
+                    // septe and nove are like above, but change to "septem" and "novem" or "septen" and "noven" instead of "septe" and "nove"
                     case 7:
-                        if (lastPrefixAdded == "viginti" ||
+                        if (
+                            lastPrefixAdded == "viginti" ||
                             lastPrefixAdded == "octoginta" ||
-                            lastPrefixAdded == "octingenti")
-                        {
+                            lastPrefixAdded == "octingenti"
+                        ) {
                             prefix = "septem" + prefix;
-                        } else if (lastPrefixAdded == "deci" ||
-                                   lastPrefixAdded == "triginta" ||
-                                   lastPrefixAdded == "quadraginta" ||
-                                   lastPrefixAdded == "quinquaginta" ||
-                                   lastPrefixAdded == "sexaginta" ||
-                                   lastPrefixAdded == "septuaginta" ||
-                                   
-                                   lastPrefixAdded == "centi" ||
-                                   lastPrefixAdded == "ducenti" ||
-                                   lastPrefixAdded == "trecenti" ||
-                                   lastPrefixAdded == "quadragcenti" ||
-                                   lastPrefixAdded == "quingenti" ||
-                                   lastPrefixAdded == "secenti" ||
-                                   lastPrefixAdded == "septingenti")
-                        {
+                        } else if (
+                            lastPrefixAdded == "deci" ||
+                            lastPrefixAdded == "triginta" ||
+                            lastPrefixAdded == "quadraginta" ||
+                            lastPrefixAdded == "quinquaginta" ||
+                            lastPrefixAdded == "sexaginta" ||
+                            lastPrefixAdded == "septuaginta" ||
+                            lastPrefixAdded == "centi" ||
+                            lastPrefixAdded == "ducenti" ||
+                            lastPrefixAdded == "trecenti" ||
+                            lastPrefixAdded == "quadragcenti" ||
+                            lastPrefixAdded == "quingenti" ||
+                            lastPrefixAdded == "secenti" ||
+                            lastPrefixAdded == "septingenti"
+                        ) {
                             prefix = "septen" + prefix;
                         } else prefix = onesPrefixes[onesDigit - 1] + prefix;
                         break;
                     case 9:
-                        if (lastPrefixAdded == "viginti" ||
+                        if (
+                            lastPrefixAdded == "viginti" ||
                             lastPrefixAdded == "octoginta" ||
-                            lastPrefixAdded == "octingenti")
-                        {
+                            lastPrefixAdded == "octingenti"
+                        ) {
                             prefix = "novem" + prefix;
-                        } else if (lastPrefixAdded == "deci" ||
-                                   lastPrefixAdded == "triginta" ||
-                                   lastPrefixAdded == "quadraginta" ||
-                                   lastPrefixAdded == "quinquaginta" ||
-                                   lastPrefixAdded == "sexaginta" ||
-                                   lastPrefixAdded == "septuaginta" ||
-                                   
-                                   lastPrefixAdded == "centi" ||
-                                   lastPrefixAdded == "ducenti" ||
-                                   lastPrefixAdded == "trecenti" ||
-                                   lastPrefixAdded == "quadragcenti" ||
-                                   lastPrefixAdded == "quingenti" ||
-                                   lastPrefixAdded == "secenti" ||
-                                   lastPrefixAdded == "septingenti")
-                        {
+                        } else if (
+                            lastPrefixAdded == "deci" ||
+                            lastPrefixAdded == "triginta" ||
+                            lastPrefixAdded == "quadraginta" ||
+                            lastPrefixAdded == "quinquaginta" ||
+                            lastPrefixAdded == "sexaginta" ||
+                            lastPrefixAdded == "septuaginta" ||
+                            lastPrefixAdded == "centi" ||
+                            lastPrefixAdded == "ducenti" ||
+                            lastPrefixAdded == "trecenti" ||
+                            lastPrefixAdded == "quadragcenti" ||
+                            lastPrefixAdded == "quingenti" ||
+                            lastPrefixAdded == "secenti" ||
+                            lastPrefixAdded == "septingenti"
+                        ) {
                             prefix = "noven" + prefix;
                         } else prefix = onesPrefixes[onesDigit - 1] + prefix;
                         break;
                     default:
                         prefix = onesPrefixes[onesDigit - 1] + prefix;
                         break;
-                }; 
+                }
             }
         }
     }
@@ -208,10 +221,4 @@ function generateIllionPrefix(prefixNum) {
     } else if (prefix.endsWith("i")) prefix += "llion";
     else prefix += "illion";
     return prefix;
-};
-
-
-// export the function
-module.exports = {
-    getPrefix 
-};
+}

@@ -4,9 +4,3 @@
  */
 
 // User-editable variables
-
-
-
-module.exports = {
-
-};

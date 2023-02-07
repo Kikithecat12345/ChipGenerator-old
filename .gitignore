@@ -108,3 +108,6 @@ dist
 # MY stuff
 
 wallaby.js
+
+# ignore `config.ini` so a copy of `config.example.ini` is generated when first run
+config.ini
